@@ -16,6 +16,7 @@ DB_ROOT_PASSWORD="root"  # Use the same root password as in your docker-compose.
 
 
 # Create the necessary directories
+mkdir -p $DOMAIN && cd $DOMAIN
 mkdir -p ./nginx/conf.d ./certbot/conf ./certbot/www ./wordpress
 
 # Generate docker-compose.yml
@@ -23,10 +24,10 @@ cat <<EOF > docker-compose.yml
 services:
   nginx:
     image: "nginx"
-    container_name: nginx
+    container_name: wp_nginx
     restart: unless-stopped
     depends_on:
-      - wordpress
+      - wp
     ports:
       - "80:80"   # HTTP
       - "443:443" # HTTPS
@@ -36,11 +37,11 @@ services:
       - ./certbot/www:/var/www/certbot
       - ./wordpress:/var/www/html
     networks:
-      - wp_net
+      - wp_network
 
-  database:
+  wp_db:
     image: mariadb
-    container_name: db
+    container_name: wp_db
     command: "--default-authentication-plugin=mysql_native_password"
     volumes:
       - dbdata:/var/lib/mysql
@@ -48,13 +49,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     networks:
-      - wp_net
+      - wp_network
 
-  wordpress:
+  wp:
     image: wordpress:latest
     container_name: wp
     depends_on:
-      - database
+      - wp_db
     volumes:
       - ./wordpress:/var/www/html
     restart: unless-stopped
@@ -64,38 +65,38 @@ services:
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
     networks:
-      - wp_net
+      - wp_network
 
   phpmyadmin:
     image: phpmyadmin
-    container_name: pma
+    container_name: wp_pma
     depends_on:
-      - database
+      - wp_db
     restart: unless-stopped
     ports:
       - "9005:80"
     environment:
-      PMA_HOST: db
+      PMA_HOST: wp_db
       MYSQL_ROOT_PASSWORD: root
       UPLOAD_LIMIT: 300M
     networks:
-      - wp_net
+      - wp_network
 
   certbot:
     image: certbot/certbot
-    container_name: certbot
+    container_name: wp_certbot
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait \$\${!}; done;'"
     networks:
-      - wp_net
+      - wp_network
 
 volumes:
   dbdata:
 
 networks:
-  wp_net:
+  wp_network:
     driver: bridge
 EOF
 
@@ -105,31 +106,31 @@ server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
 
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
+    #location /.well-known/acme-challenge/ {
+    #    root /var/www/certbot;
+    #}
 
-    location / {
-        return 301 https://\$host\$request_uri;
-    }
+    #location / {
+    #    return 301 https://\$host\$request_uri;
+    #}
 }
 
-server {
-    listen 443 ssl;
-    server_name $DOMAIN www.$DOMAIN;
+#server {
+#    listen 443 ssl;
+#    server_name $DOMAIN www.$DOMAIN;
 
-    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/$DOMAIN/chain.pem;
+#    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+#    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+#    ssl_trusted_certificate /etc/letsencrypt/live/$DOMAIN/chain.pem;
 
-    location / {
-        proxy_pass http://wp:80;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-}
+#    location / {
+#        proxy_pass http://wp:80;
+#        proxy_set_header Host \$host;
+#        proxy_set_header X-Real-IP \$remote_addr;
+#        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+#        proxy_set_header X-Forwarded-Proto \$scheme;
+#    }
+#}
 EOF
 
 # Output message for the user
