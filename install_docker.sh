@@ -30,6 +30,8 @@ sudo systemctl enable docker
 echo "Starting Docker..."
 sudo systemctl start docker
 
+sudo usermod -aG docker $USER
+
 # Verify Docker installation
 echo "Verifying Docker installation..."
 docker --version
