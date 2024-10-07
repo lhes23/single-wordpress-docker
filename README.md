@@ -21,6 +21,13 @@ sudo chmod +x install_docker.sh && sudo chmod +x setup_wordpress.sh
 ./install_docker.sh
 ```
 
+## Before running the setup wordpress, logout and login to take effect
+
+
+```
+logout
+```
+
 ## Run the wordpress setup with the domain as an argument
 
 ```
