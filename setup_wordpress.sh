@@ -47,7 +47,7 @@ services:
       - dbdata:/var/lib/mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     networks:
       - wp_network
 
@@ -77,7 +77,7 @@ services:
       - "9005:80"
     environment:
       PMA_HOST: wp_db
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       UPLOAD_LIMIT: 300M
     networks:
       - wp_network
