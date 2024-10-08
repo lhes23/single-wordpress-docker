@@ -2,7 +2,7 @@
 
 # Check if domain argument is provided
 if [ -z "$1" ]; then
-  echo "Error: No domain provided. Usage: ./create_wordpress_stack.sh yourdomain.com"
+  echo "Error: No domain provided. Usage: ./setup_wordpress.sh yourdomain.com"
   exit 1
 fi
 
@@ -159,4 +159,4 @@ echo "Database and user for WordPress has been created."
 
 
 echo "Manually request the SSL certificate with Certbot when dns is pointing to the server:"
-echo "docker-compose run certbot certonly --webroot --webroot-path=/var/www/certbot --email your-email@example.com --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN"
+echo "docker exec certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email your-email@example.com --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN"
