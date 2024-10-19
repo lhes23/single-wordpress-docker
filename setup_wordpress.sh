@@ -58,6 +58,7 @@ services:
       - wp_db
     volumes:
       - ./wordpress:/var/www/html
+      - ./nginx/php.ini:/usr/local/etc/php/conf.d/uploads.ini
     restart: unless-stopped
     environment:
       WORDPRESS_DB_HOST: wp_db:3306
@@ -98,6 +99,12 @@ volumes:
 networks:
   wp_network:
     driver: bridge
+EOF
+
+# Generate php.ini files
+cat <<EOF > ./nginx/php.ini
+upload_max_filesize = 300M
+post_max_size = 300M
 EOF
 
 # Generate nginx configuration for the domain
