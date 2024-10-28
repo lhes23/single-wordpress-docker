@@ -31,7 +31,7 @@ logout
 ## Run the wordpress setup with the domain as an argument
 
 ```
-./setup_wordpress <domain>
+./setup_wordpress.sh <domain>
 ```
 
 ## Run docker-compose up
