@@ -1,19 +1,15 @@
 # Ubuntu preparation for wordpress docker
 
-## Dowload both files
+## Dowload both files and make it executable
 
 ```
-curl -L -o install_docker.sh https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/install_docker.sh &&
-
-curl -L -o setup_wordpress.sh https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/setup_wordpress.sh
-
+curl -L -o install_docker.sh https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/install_docker.sh && sudo chmod +x install_docker.sh
 ```
 
-## Make both executable
+```
+curl -L -o setup_wordpress.sh https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/setup_wordpress.sh && sudo chmod +x setup_wordpress.sh
+```
 
-```
-sudo chmod +x install_docker.sh && sudo chmod +x setup_wordpress.sh
-```
 
 ## Run the installation
 
