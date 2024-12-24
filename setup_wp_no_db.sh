@@ -27,20 +27,6 @@ mkdir -p ./nginx/conf.d ./wordpress
 # Generate docker-compose.yml
 cat <<EOF > docker-compose.yml
 services:
-#   nginx:
-#     image: "nginx"
-#     container_name: wp_nginx
-#     restart: unless-stopped
-#     depends_on:
-#       - wp
-#     ports:
-#       - "80:80"
-#     volumes:
-#       - ./nginx/conf.d:/etc/nginx/conf.d
-#       - ./wordpress:/var/www/html
-#     networks:
-#       - wp_network
-
   wp:
     image: wordpress:latest
     container_name: wp
@@ -49,8 +35,10 @@ services:
         limits:
           memory: 512M
           cpus: "0.5"
+    ports:
+      - "8080:80"
     volumes:
-      - ./wordpress:/var/www/html
+      - /var/www/html:/var/www/html
       - ./nginx/php.ini:/usr/local/etc/php/conf.d/uploads.ini
     restart: unless-stopped
     environment:
@@ -58,8 +46,6 @@ services:
       WORDPRESS_DB_NAME: $DB_NAME
       WORDPRESS_DB_USER: $DB_USER
       WORDPRESS_DB_PASSWORD: $DB_PASSWORD
-    networks:
-      - wp_network
 
   phpmyadmin:
     image: phpmyadmin
@@ -71,12 +57,6 @@ services:
       PMA_HOST: $DB_HOST
       MYSQL_ROOT_PASSWORD: $DB_PASSWORD
       UPLOAD_LIMIT: 300M
-    networks:
-      - wp_network
-
-networks:
-  wp_network:
-    driver: bridge
 EOF
 
 # Generate php.ini files
@@ -85,21 +65,26 @@ upload_max_filesize = 300M
 post_max_size = 300M
 EOF
 
-# Generate nginx configuration for the domain
-cat <<EOF > /etc/nginx/conf.d/default.conf
+# Generate Nginx configuration for the domain and write to /etc/nginx/conf.d
+if [ ! -d /etc/nginx/conf.d ]; then
+  echo "Error: /etc/nginx/conf.d directory does not exist. Ensure Nginx is installed and the directory is present."
+  exit 1
+fi
+
+sudo bash -c "cat <<EOF > /etc/nginx/conf.d/default.conf
 server {
     listen 80;
-    server_name $DOMAIN www.$DOMAIN;
+    server_name $DOMAIN www.$DOMAIN localhost;
 
     location / {
-        proxy_pass http://wp:80;
+        proxy_pass http://localhost:8080;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
-EOF
+EOF"
 
 # Output message for the user
 echo "Docker Compose and Nginx config files created for $DOMAIN."
