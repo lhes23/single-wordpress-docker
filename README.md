@@ -10,6 +10,11 @@ curl -L -o install_docker.sh https://raw.githubusercontent.com/lhes23/single-wor
 curl -L -o setup_wordpress.sh https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/setup_wordpress.sh && sudo chmod +x setup_wordpress.sh
 ```
 
+## Option if not using local db
+
+```
+curl -L -o setup_wp_no_db.sh https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/setup_wp_no_db.sh && sudo chmod +x setup_wp_no_db.sh
+```
 
 ## Run the installation
 
@@ -18,7 +23,6 @@ curl -L -o setup_wordpress.sh https://raw.githubusercontent.com/lhes23/single-wo
 ```
 
 ## Before running the setup wordpress, logout and login to take effect
-
 
 ```
 logout
@@ -31,6 +35,7 @@ logout
 ```
 
 ## Run docker-compose up
+
 cd into the domain directory and run docker-compose up -d
 
 ```
