@@ -36,7 +36,7 @@ services:
           memory: 512M
           cpus: "0.5"
     ports:
-      - "8080:80"
+      - "80:80"
     volumes:
       - ./wordpress:/var/www/html
       - ./nginx/php.ini:/usr/local/etc/php/conf.d/uploads.ini
@@ -71,6 +71,8 @@ if [ ! -d /etc/nginx/conf.d ]; then
   exit 1
 fi
 
+export DOMAIN=$DOMAIN
+
 sudo bash -c 'cat <<EOF > /etc/nginx/conf.d/default.conf
 server {
     listen 80;
@@ -80,7 +82,7 @@ server {
     index index.php index.html index.htm;
 
     location / {
-        proxy_pass http://localhost:8080;  # Pointing to the WP container
+        proxy_pass http://localhost:80;  # Pointing to the WP container
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
