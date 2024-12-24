@@ -2,23 +2,23 @@
 
 # Check if domain argument is provided
 if [ -z "$1" ]; then
-  echo "Error: No domain provided. Usage: ./setup_wordpress.sh yourdomain.com"
+  echo "Error: No domain provided. Usage: ./setup_wp_no_db.sh yourdomain.com"
   exit 1
 fi
 
 # Assign domain from the argument
 DOMAIN=$1
 
-# DB_NAME="${DOMAIN//./_}_wp"
-# DB_USER="${DOMAIN//./_}_wp"
-# DB_PASSWORD=$(openssl rand -base64 12)
-# DB_ROOT_PASSWORD="root"  # Use the same root password as in your docker-compose.yml
+# Check if .env file exists
+if [ ! -f .env ]; then
+  echo "Error: .env file not found. Please create a .env file with DB_HOST, DB_NAME, DB_USER, and DB_PASSWORD."
+  exit 1
+fi
 
-DB_HOST=""
-DB_NAME=""
-DB_USER=""
-DB_PASSWORD=""
-
+# Load database credentials from .env file
+set -o allexport
+source .env
+set +o allexport
 
 # Create the necessary directories
 mkdir -p $DOMAIN && cd $DOMAIN
@@ -49,10 +49,10 @@ services:
       - ./nginx/php.ini:/usr/local/etc/php/conf.d/uploads.ini
     restart: unless-stopped
     environment:
-      WORDPRESS_DB_HOST: ${DB_HOST}:3306
-      WORDPRESS_DB_NAME: ${DB_NAME}
-      WORDPRESS_DB_USER: ${DB_USER}
-      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+      WORDPRESS_DB_HOST: $DB_HOST
+      WORDPRESS_DB_NAME: $DB_NAME
+      WORDPRESS_DB_USER: $DB_USER
+      WORDPRESS_DB_PASSWORD: $DB_PASSWORD
     networks:
       - wp_network
 
@@ -63,8 +63,8 @@ services:
     ports:
       - "9005:80"
     environment:
-      PMA_HOST: ${DB_HOST}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      PMA_HOST: $DB_HOST
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
       UPLOAD_LIMIT: 300M
     networks:
       - wp_network
@@ -98,8 +98,4 @@ EOF
 
 # Output message for the user
 echo "Docker Compose and Nginx config files created for $DOMAIN."
-echo "Please enter database credentials"
 echo "Run 'docker-compose up -d' to start the WordPress stack."
-
-# Start the Docker containers
-# docker-compose up -d

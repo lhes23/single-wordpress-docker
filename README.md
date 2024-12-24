@@ -16,6 +16,10 @@ curl -L -o setup_wordpress.sh https://raw.githubusercontent.com/lhes23/single-wo
 curl -L -o setup_wp_no_db.sh https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/setup_wp_no_db.sh && sudo chmod +x setup_wp_no_db.sh
 ```
 
+```
+curl -L -o env.example https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/env.example
+```
+
 ## Run the installation
 
 ```
