@@ -27,19 +27,19 @@ mkdir -p ./nginx/conf.d ./wordpress
 # Generate docker-compose.yml
 cat <<EOF > docker-compose.yml
 services:
-  nginx:
-    image: "nginx"
-    container_name: wp_nginx
-    restart: unless-stopped
-    depends_on:
-      - wp
-    ports:
-      - "80:80"   # HTTP
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./wordpress:/var/www/html
-    networks:
-      - wp_network
+#   nginx:
+#     image: "nginx"
+#     container_name: wp_nginx
+#     restart: unless-stopped
+#     depends_on:
+#       - wp
+#     ports:
+#       - "80:80"
+#     volumes:
+#       - ./nginx/conf.d:/etc/nginx/conf.d
+#       - ./wordpress:/var/www/html
+#     networks:
+#       - wp_network
 
   wp:
     image: wordpress:latest
@@ -86,7 +86,7 @@ post_max_size = 300M
 EOF
 
 # Generate nginx configuration for the domain
-cat <<EOF > ./nginx/conf.d/default.conf
+cat <<EOF > /etc/nginx/conf.d/default.conf
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;

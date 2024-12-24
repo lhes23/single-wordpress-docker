@@ -17,7 +17,7 @@ curl -L -o setup_wp_no_db.sh https://raw.githubusercontent.com/lhes23/single-wor
 ```
 
 ```
-curl -L -o env.example https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/env.example
+curl -L -o .env https://raw.githubusercontent.com/lhes23/single-wordpress-docker/refs/heads/main/env.example
 ```
 
 ## Run the installation
