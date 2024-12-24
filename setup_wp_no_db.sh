@@ -35,11 +35,8 @@ services:
       - wp
     ports:
       - "80:80"   # HTTP
-      - "443:443" # HTTPS
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
       - ./wordpress:/var/www/html
     networks:
       - wp_network
@@ -91,10 +88,10 @@ server {
 
     location / {
         proxy_pass http://wp:80;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 EOF
