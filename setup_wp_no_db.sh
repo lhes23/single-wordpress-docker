@@ -38,7 +38,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - /var/www/html:/var/www/html
+      - ./wordpress:/var/www/html
       - ./nginx/php.ini:/usr/local/etc/php/conf.d/uploads.ini
     restart: unless-stopped
     environment:
@@ -71,20 +71,38 @@ if [ ! -d /etc/nginx/conf.d ]; then
   exit 1
 fi
 
-sudo bash -c "cat <<EOF > /etc/nginx/conf.d/default.conf
+sudo bash -c 'cat <<EOF > /etc/nginx/conf.d/default.conf
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN localhost;
 
+    root /var/www/html;  # Ensure the root points to the correct directory
+    index index.php index.html index.htm;
+
     location / {
-        proxy_pass http://localhost:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://wp:80;  # Pointing to the WP container
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;  # Adjust PHP version as needed
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
     }
 }
-EOF"
+EOF'
+
+# Test Nginx configuration and reload
+sudo nginx -t  # Test for errors
+sudo systemctl reload nginx  # Reload Nginx to apply the new config
 
 # Output message for the user
 echo "Docker Compose and Nginx config files created for $DOMAIN."
