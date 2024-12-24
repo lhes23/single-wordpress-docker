@@ -44,6 +44,11 @@ services:
   wp:
     image: wordpress:latest
     container_name: wp
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
     volumes:
       - ./wordpress:/var/www/html
       - ./nginx/php.ini:/usr/local/etc/php/conf.d/uploads.ini
