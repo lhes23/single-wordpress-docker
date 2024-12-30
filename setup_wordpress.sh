@@ -128,6 +128,8 @@ server {
     #location / {
     #    return 301 https://\$host\$request_uri;
     #}
+
+    client_max_body_size 300M;
 }
 
 #server {
@@ -145,6 +147,7 @@ server {
 #        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
 #        proxy_set_header X-Forwarded-Proto \$scheme;
 #    }
+#    client_max_body_size 300M;
 #}
 EOF
 
