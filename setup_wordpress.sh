@@ -47,7 +47,7 @@ services:
       - dbdata:/var/lib/mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     networks:
       - wp_network
 
