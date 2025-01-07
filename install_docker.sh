@@ -49,3 +49,13 @@ echo "Verifying Docker Compose installation..."
 docker-compose --version
 
 echo "Docker and Docker Compose installed successfully."
+
+
+sudo apt update
+sudo apt install ufw -y
+sudo ufw enable -y
+
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+
