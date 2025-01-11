@@ -121,9 +121,9 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
-    #location /.well-known/acme-challenge/ {
-    #    root /var/www/certbot;
-    #}
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
 
     #location / {
     #    return 301 https://\$host\$request_uri;
