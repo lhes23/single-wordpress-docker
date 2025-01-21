@@ -38,12 +38,11 @@ logout
 ./setup_wordpress.sh <domain>
 ```
 
-## Run docker-compose up
-
-cd into the domain directory and run docker-compose up -d
+## When DNS is pointing to the server, request the SSL certificate with certbot
 
 ```
-cd <domain>
-
-docker-compose up --build -d
+docker exec wp_certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@<domain> --agree-tos --no-eff-email -d <domain> -d www.<domain>
 ```
+make sure to change the <domain> name.
+
+you can check the file request_ssl.txt
