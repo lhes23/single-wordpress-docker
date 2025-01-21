@@ -178,3 +178,7 @@ echo "Database and user for WordPress has been created."
 
 echo "Manually request the SSL certificate with Certbot when dns is pointing to the server:"
 echo "docker exec wp_certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@$DOMAIN --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN"
+
+cat <<EOF > ./request_ssl.txt
+docker exec wp_certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@$DOMAIN --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN
+EOF
