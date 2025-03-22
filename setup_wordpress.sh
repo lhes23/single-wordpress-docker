@@ -156,7 +156,7 @@ echo "Docker Compose and Nginx config files created for $DOMAIN."
 echo "Running 'docker-compose up -d' to start the WordPress stack."
 
 # Start the Docker containers
-docker-compose up -d
+docker compose up -d
 
 # Wait for MariaDB to initialize properly
 until docker exec wp_db mariadb -u root -p$DB_ROOT_PASSWORD -e "SELECT 1" >/dev/null 2>&1; do
