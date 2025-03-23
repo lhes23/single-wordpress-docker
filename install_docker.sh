@@ -58,4 +58,6 @@ sudo ufw enable -y
 sudo ufw allow ssh
 sudo ufw allow http
 sudo ufw allow https
+sudo ufw allow 9100/tcp
+sudo ufw reload
 
