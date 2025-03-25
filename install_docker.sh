@@ -61,3 +61,8 @@ sudo ufw allow https
 sudo ufw allow 9100/tcp
 sudo ufw reload
 
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
