@@ -53,12 +53,12 @@ echo "Docker and Docker Compose installed successfully."
 
 sudo apt update
 sudo apt install ufw -y
-sudo ufw enable -y
 
 sudo ufw allow ssh
 sudo ufw allow http
 sudo ufw allow https
 sudo ufw allow 9100/tcp
+echo "y" | sudo ufw enable
 sudo ufw reload
 
 sudo fallocate -l 4G /swapfile
