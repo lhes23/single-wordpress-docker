@@ -181,4 +181,8 @@ echo "docker exec wp_certbot certbot certonly --webroot --webroot-path=/var/www/
 
 cat <<EOF > ./request_ssl.txt
 docker exec wp_certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@$DOMAIN --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN
+
+# to renew:
+docker exec wp_certbot certbot renew --force-renewal --non-interactive
+docker compose up -d --force-recreate
 EOF
