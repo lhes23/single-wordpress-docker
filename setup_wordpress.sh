@@ -24,7 +24,7 @@ cat <<EOF > docker-compose.yml
 services:
   nginx:
     image: "nginx"
-    container_name: wp_nginx
+    container_name: nginx
     restart: unless-stopped
     depends_on:
       - wp
@@ -39,9 +39,9 @@ services:
     networks:
       - wp_network
 
-  wp_db:
+  db:
     image: mariadb
-    container_name: wp_db
+    container_name: db
     command: "--default-authentication-plugin=mysql_native_password"
     volumes:
       - dbdata:/var/lib/mysql
@@ -55,13 +55,13 @@ services:
     image: wordpress:latest
     container_name: wp
     depends_on:
-      - wp_db
+      - db
     volumes:
       - ./wordpress:/var/www/html
       - ./nginx/php.ini:/usr/local/etc/php/conf.d/uploads.ini
     restart: unless-stopped
     environment:
-      WORDPRESS_DB_HOST: wp_db:3306
+      WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_NAME: ${DB_NAME}
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
@@ -70,14 +70,14 @@ services:
 
   phpmyadmin:
     image: phpmyadmin
-    container_name: wp_pma
+    container_name: pma
     depends_on:
-      - wp_db
+      - db
     restart: unless-stopped
     ports:
       - "9005:80"
     environment:
-      PMA_HOST: wp_db
+      PMA_HOST: db
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       UPLOAD_LIMIT: 300M
     networks:
@@ -85,7 +85,7 @@ services:
 
   certbot:
     image: certbot/certbot
-    container_name: wp_certbot
+    container_name: certbot
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
@@ -111,7 +111,7 @@ EOF
 cat <<EOF > ./nginx/conf.d/default.conf
 server {
     listen 80;
-    server_name $DOMAIN www.$DOMAIN;
+    server_name _;
 
     location / {
         proxy_pass http://wp:80;
@@ -134,7 +134,7 @@ server {
 
 #server {
 #    listen 443 ssl;
-#    server_name $DOMAIN www.$DOMAIN;
+#    server_name _;
 
 #    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
 #    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
@@ -168,21 +168,21 @@ done
 echo "Creating database and user for WordPress..."
 
 # Create the database and user
-docker exec wp_db mariadb -u root -p$DB_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
-docker exec wp_db mariadb -u root -p$DB_ROOT_PASSWORD -e "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';"
-docker exec wp_db mariadb -u root -p$DB_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%';"
-docker exec wp_db mariadb -u root -p$DB_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
+docker exec db mariadb -u root -p$DB_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
+docker exec db mariadb -u root -p$DB_ROOT_PASSWORD -e "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';"
+docker exec db mariadb -u root -p$DB_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%';"
+docker exec db mariadb -u root -p$DB_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
 
 echo "Database and user for WordPress has been created."
 
 
 echo "Manually request the SSL certificate with Certbot when dns is pointing to the server:"
-echo "docker exec wp_certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@$DOMAIN --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN"
+echo "docker exec certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@$DOMAIN --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN"
 
 cat <<EOF > ./request_ssl.txt
-docker exec wp_certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@$DOMAIN --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN
+docker exec certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@$DOMAIN --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN
 
 # to renew:
-docker exec wp_certbot certbot renew --force-renewal --non-interactive
+docker exec certbot certbot renew --force-renewal --non-interactive
 docker compose up -d --force-recreate
 EOF
