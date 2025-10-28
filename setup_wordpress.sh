@@ -89,7 +89,7 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait \$\${!}; done;'"
+    entrypoint: "/bin/sh -c 'echo \"0 */12 * * * certbot renew --webroot -w /var/www/certbot --quiet && nginx -s reload\" | crontab - && crond -f'"
     networks:
       - wp_network
 
@@ -123,6 +123,7 @@ server {
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
+        try_files $uri =404;
     }
 
     #location / {
@@ -183,6 +184,6 @@ cat <<EOF > ./request_ssl.txt
 docker exec certbot certbot certonly --webroot --webroot-path=/var/www/certbot --email admin@$DOMAIN --agree-tos --no-eff-email -d $DOMAIN -d www.$DOMAIN
 
 # to renew:
-docker exec certbot certbot renew --force-renewal --non-interactive
-docker compose up -d --force-recreate
+docker exec certbot certbot renew --webroot -w /var/www/certbot --force-renewal --non-interactive
+docker exec nginx nginx -s reload
 EOF
