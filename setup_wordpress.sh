@@ -159,12 +159,18 @@ echo "Running 'docker-compose up -d' to start the WordPress stack."
 # Start the Docker containers
 docker compose up -d
 
-# Wait for MariaDB to initialize properly
-until docker exec wp_db mariadb -u root -p$DB_ROOT_PASSWORD -e "SELECT 1" >/dev/null 2>&1; do
+MAX_RETRIES=30
+COUNTER=0
+
+until docker exec db mariadb -u root -p$DB_ROOT_PASSWORD -e "SELECT 1" >/dev/null 2>&1; do
     echo "Waiting for MariaDB to start..."
     sleep 5
+    COUNTER=$((COUNTER+1))
+    if [ $COUNTER -ge $MAX_RETRIES ]; then
+        echo "MariaDB did not start. Exiting..."
+        exit 1
+    fi
 done
-
 
 echo "Creating database and user for WordPress..."
 
